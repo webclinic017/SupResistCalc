@@ -34,11 +34,11 @@ def get_data(symbols, gran, from_date):
     )
     df[symbols] = df[symbols].loc[:,['time','mid.o','mid.h','mid.l','mid.c','volume']]
     df[symbols].rename(columns={'time':'Date', 'mid.o':'Open','mid.h':'High','mid.l':'Low','mid.c':'Close','volume':'Volume'},inplace=True)
-    df[symbols]['Open'].astype(float)
-    df[symbols]['High'].astype(float)
-    df[symbols]['Low'].astype(float)
-    df[symbols]['Close'].astype(float)
-    df[symbols]['Volume'].astype(float)
+    # df[symbols]['Open'].astype(float)
+    # df[symbols]['High'].astype(float)
+    # df[symbols]['Low'].astype(float)
+    # df[symbols]['Close'].astype(float)
+    # df[symbols]['Volume'].astype(float)
     df[symbols] = df[symbols].set_index(['Date'])
     # df[symbols].index = pd.DatetimeIndex(df[symbols].index).strftime('%d-%m-%Y %H:%M:%S')
     return df
@@ -46,6 +46,19 @@ def get_data(symbols, gran, from_date):
 # Plots candlestick charts and adds Support Resistence lines
 def plot_charts(symbols, df, gran,levels):
     fig = go.Figure()
+    support_resistance_prices = ""
+    for level in levels:
+        support_resistance_prices += "{:.2f}".format(level)
+    fig.add_annotation(text=support_resistance_prices,
+                       align='left',
+                       showarrow=False,
+                       xref='paper',
+                       yref='paper',
+                       x=1.0,
+                       y=0.9,
+                       bordercolor='white',
+                       borderwidth=1)
+
     fig.update_layout(
         title = f'{symbols} "{gran}" Charts',
         yaxis_title = f'{symbols} Price',
@@ -77,22 +90,19 @@ def plot_charts(symbols, df, gran,levels):
         # )]
                 
                     )
+    fig.add_trace(go.Candlestick(x=df.index,
+                                 open=df['Open'],
+                                 close=df['Close'],
+                                 low=df['Low'],
+                                 high=df['High'],
+                                 increasing_line_color="green",
+                                 decreasing_line_color="red",name='Price'), row=1, col=1)
 
     for level in levels:
-        # fig.add_trace([go.Candlestick(
-        #     x=df.index,
-        #     open=df['Open'],
-        #     high=df['High'],
-        #     low=df['Low'],
-        #     close=df['Close'],
-        #     name = 'Candlestick Bars'
-        #     )])
-
-    
         fig.add_trace(go.Scatter(
             name='Support and Resistance',
-            mode='markers+lines',
-            y= [level[1]], x = df.index[len(df)-1],
+            mode='lines',
+            y= [level[1]], x = df.index[len(df)-1]
             )
         )
 
