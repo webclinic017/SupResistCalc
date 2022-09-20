@@ -17,8 +17,10 @@ def symbol(sym):
         headers=config.oanda_headers).json(),max_level=2,
         record_path = ['instruments'])
         symbols = symbol.name
+    
     else:
         symbols = [sym]
+
     return symbols
 
 # Takes Symbols and passes it through Oanda API to get predetermined history
@@ -34,11 +36,11 @@ def get_data(symbols, gran, from_date):
     )
     df[symbols] = df[symbols].loc[:,['time','mid.o','mid.h','mid.l','mid.c','volume']]
     df[symbols].rename(columns={'time':'Date', 'mid.o':'Open','mid.h':'High','mid.l':'Low','mid.c':'Close','volume':'Volume'},inplace=True)
-    # df[symbols]['Open'].astype(float)
-    # df[symbols]['High'].astype(float)
-    # df[symbols]['Low'].astype(float)
-    # df[symbols]['Close'].astype(float)
-    # df[symbols]['Volume'].astype(float)
+    df[symbols]['Open'].astype(float)
+    df[symbols]['High'].astype(float)
+    df[symbols]['Low'].astype(float)
+    df[symbols]['Close'].astype(float)
+    df[symbols]['Volume'].astype(float)
     df[symbols] = df[symbols].set_index(['Date'])
     # df[symbols].index = pd.DatetimeIndex(df[symbols].index).strftime('%d-%m-%Y %H:%M:%S')
     return df
@@ -46,9 +48,28 @@ def get_data(symbols, gran, from_date):
 # Plots candlestick charts and adds Support Resistence lines
 def plot_charts(symbols, df, gran,levels):
     fig = go.Figure()
+    fig.add_trace(go.Candlestick(x=df.index,
+                                open=df['Open'],
+                                close=df['Close'],
+                                low=df['Low'],
+                                high=df['High'],
+                                increasing_line_color="green",
+                                decreasing_line_color="red",name='Price'))
+
+    for level in levels:
+        print(level)
+        x0 = df.index[level[0]-1] , y0 = [level[1]],
+        x1 = df.index[len(df)-2] , y1 = [level[1]]
+
+    fig.add_trace(go.Scatter(
+        name='Support and Resistance',
+        mode='lines',
+        y=[ y0, y1] , x = [x0 , x1] 
+        ))
+
     support_resistance_prices = ""
     for level in levels:
-        support_resistance_prices += "{:.2f}".format(level)
+        support_resistance_prices = "{:.2f}".format(level)
     fig.add_annotation(text=support_resistance_prices,
                        align='left',
                        showarrow=False,
@@ -56,8 +77,8 @@ def plot_charts(symbols, df, gran,levels):
                        yref='paper',
                        x=1.0,
                        y=0.9,
-                       bordercolor='white',
-                       borderwidth=1)
+                       bordercolor='pink',
+                       borderwidth=3)
 
     fig.update_layout(
         title = f'{symbols} "{gran}" Charts',
@@ -88,25 +109,9 @@ def plot_charts(symbols, df, gran,levels):
         # annotations = [dict(
         #     text = f'{level[1]}'
         # )]
-                
-                    )
-    fig.add_trace(go.Candlestick(x=df.index,
-                                 open=df['Open'],
-                                 close=df['Close'],
-                                 low=df['Low'],
-                                 high=df['High'],
-                                 increasing_line_color="green",
-                                 decreasing_line_color="red",name='Price'), row=1, col=1)
+    )
 
-    for level in levels:
-        fig.add_trace(go.Scatter(
-            name='Support and Resistance',
-            mode='lines',
-            y= [level[1]], x = df.index[len(df)-1]
-            )
-        )
-
-        fig.show()
+    fig.show()
 
 # Determines if there is Support
 def is_support(df, i):
@@ -214,7 +219,7 @@ screened_list_2 = []
 #         print(e)
 
 # Initiating the code
-symbols = symbol('all')
+symbols = symbol('USD_SEK')
 gran = 'H4'
 from_date = '2022-03-01'
 for sym in symbols:
