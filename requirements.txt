@@ -1,0 +1,6 @@
+pandas
+pandas_ta
+yfinance
+plotly
+sklearn
+dash
