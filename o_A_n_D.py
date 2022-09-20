@@ -57,19 +57,21 @@ def plot_charts(symbols, df, gran,levels):
                                 decreasing_line_color="red",name='Price'))
 
     for level in levels:
-        print(level)
-        x0 = df.index[level[0]-1] , y0 = [level[1]],
-        x1 = df.index[len(df)-2] , y1 = [level[1]]
+        x0 = df.index[level[0]-1]
+        y0 = level[1]
+        x1 = df.index[len(df)-2]
+        y1 = level[1]
 
-    fig.add_trace(go.Scatter(
-        name='Support and Resistance',
-        mode='lines',
-        y=[ y0, y1] , x = [x0 , x1] 
-        ))
+        i =+ 0 
+        fig.add_trace(go.Scatter(
+            name=f'Support and Resistance {i}',
+            mode='lines',
+            y=[ y0, y1] , x = [x0 , x1] 
+            ))
 
     support_resistance_prices = ""
     for level in levels:
-        support_resistance_prices = "{:.2f}".format(level)
+        support_resistance_prices = "{:.2f}".format(level[0])
     fig.add_annotation(text=support_resistance_prices,
                        align='left',
                        showarrow=False,
@@ -179,7 +181,7 @@ def detect_level_method_2(df):
         if len(max_list) == 5 & is_far_from_level(current_max,levels, df[sym]):
             levels.append((high_range.idxmax(), current_max))
 
-        low_range = df[sym]['Low'][i-5: i+5].astype(float)
+        low_range = df[sym]['Low'][i-5:i+4].astype(float)
         current_min = low_range.min()
 
         if current_min not in min_list:
@@ -219,16 +221,16 @@ screened_list_2 = []
 #         print(e)
 
 # Initiating the code
-symbols = symbol('USD_SEK')
-gran = 'H4'
+symbols = symbol('all')
+gran = 'D'
 from_date = '2022-03-01'
 for sym in symbols:
     try:
         df = get_data(symbols=sym,gran=gran,from_date= from_date)
 
-        levels_1 = detect_level_method_1(df[sym])
-        if (has_breakout(levels_1[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
-            screened_list_1.append(sym)
+        # levels_1 = detect_level_method_1(df[sym])
+        # if (has_breakout(levels_1[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
+        #     screened_list_1.append(sym)
 
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
         levels_2 = detect_level_method_2(df)
