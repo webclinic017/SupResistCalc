@@ -1,5 +1,6 @@
 # Imports
 from __future__ import annotations
+from itertools import count
 from xmlrpc.client import DateTime
 import oandapyV20
 import oandapyV20.endpoints.forexlabs as labs
@@ -56,29 +57,29 @@ def plot_charts(symbols, df, gran,levels):
                                 increasing_line_color="green",
                                 decreasing_line_color="red",name='Price'))
 
+    i = 0 
+    support_resistance_prices = ""
     for level in levels:
         x0 = df.index[level[0]-1]
         y0 = level[1]
         x1 = df.index[len(df)-2]
         y1 = level[1]
 
-        i =+ 0 
         fig.add_trace(go.Scatter(
             name=f'Support and Resistance {i}',
             mode='lines',
             y=[ y0, y1] , x = [x0 , x1] 
             ))
-
-    support_resistance_prices = ""
-    for level in levels:
+        i+=1
+            
         support_resistance_prices = "{:.2f}".format(level[0])
-    fig.add_annotation(text=support_resistance_prices,
-                       align='left',
-                       showarrow=False,
+        fig.add_annotation(text=support_resistance_prices,
+                       align='center',
+                       showarrow=True,
                        xref='paper',
                        yref='paper',
-                       x=1.0,
-                       y=0.9,
+                       x=0.1,
+                       y=0.9+i,
                        bordercolor='pink',
                        borderwidth=3)
 
@@ -153,7 +154,7 @@ def has_breakout(levels, previous, last):
 # Method 1: Using Fractal candlestick pattern
 def detect_level_method_1(df):
     levels = []
-    for i in range(2, df.shape[0] -2):
+    for i in range(2, len(df) -2):
         if is_support(df, i):
             l = df['Low'][i]
             if is_far_from_level(l, levels, df):
@@ -181,7 +182,7 @@ def detect_level_method_2(df):
         if len(max_list) == 5 & is_far_from_level(current_max,levels, df[sym]):
             levels.append((high_range.idxmax(), current_max))
 
-        low_range = df[sym]['Low'][i-5:i+4].astype(float)
+        low_range = df[sym]['Low'][i-5:i+5].astype(float)
         current_min = low_range.min()
 
         if current_min not in min_list:
@@ -227,10 +228,11 @@ from_date = '2022-03-01'
 for sym in symbols:
     try:
         df = get_data(symbols=sym,gran=gran,from_date= from_date)
+        # df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
-        # levels_1 = detect_level_method_1(df[sym])
-        # if (has_breakout(levels_1[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
-        #     screened_list_1.append(sym)
+        levels_1 = detect_level_method_1(df[sym])
+        if (has_breakout(levels_1[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
+            screened_list_1.append(sym)
 
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
         levels_2 = detect_level_method_2(df)
@@ -276,7 +278,7 @@ for symbols in screened_list_2:
         if len(max_list) == 5 and is_far_from_level(current_max,pivots, df[symbols]):
             pivots.append((i, current_max))
 
-        low_range = df[symbols]['Low'][i-5:i+5].astype(float)
+        low_range = df[symbols]['Low'][i-5:i+4].astype(float)
         current_min = low_range.min()
         if current_min not in min_list:
             min_list = []
