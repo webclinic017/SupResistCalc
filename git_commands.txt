@@ -1,0 +1,4 @@
+git add {file to add} - adds a file to be watched when next commit is executed
+git commit -m "message to deferentiate between saves"
+git status - allows you to see the differece between saves
+git push - pushes all the new changes up to github
