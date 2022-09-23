@@ -1,15 +1,18 @@
 # Imports
 from __future__ import annotations
 from itertools import count
+from operator import is_
 from xmlrpc.client import DateTime
 import oandapyV20
 import oandapyV20.endpoints.forexlabs as labs
 import oandapyV20.endpoints.instruments as instruments
 import  requests, config
+from pprint import pprint
 import pandas as pd
 from typing import  OrderedDict
 import numpy as np
 import plotly.graph_objects as go
+import plotly.io as pio
 
 # Function to define the symbols or pairs used
 def symbol(sym):
@@ -18,10 +21,8 @@ def symbol(sym):
         headers=config.oanda_headers).json(),max_level=2,
         record_path = ['instruments'])
         symbols = symbol.name
-    
     else:
         symbols = [sym]
-
     return symbols
 
 # Takes Symbols and passes it through Oanda API to get predetermined history
@@ -37,51 +38,59 @@ def get_data(symbols, gran, from_date):
     )
     df[symbols] = df[symbols].loc[:,['time','mid.o','mid.h','mid.l','mid.c','volume']]
     df[symbols].rename(columns={'time':'Date', 'mid.o':'Open','mid.h':'High','mid.l':'Low','mid.c':'Close','volume':'Volume'},inplace=True)
-    df[symbols]['Open'].astype(float)
-    df[symbols]['High'].astype(float)
-    df[symbols]['Low'].astype(float)
-    df[symbols]['Close'].astype(float)
-    df[symbols]['Volume'].astype(float)
+    np.array(df[symbols]['Open'])
+    np.array(df[symbols]['High'])
+    np.array(df[symbols]['Low'])
+    np.array(df[symbols]['Close'])
+    np.array(df[symbols]['Volume'])
     df[symbols] = df[symbols].set_index(['Date'])
     # df[symbols].index = pd.DatetimeIndex(df[symbols].index).strftime('%d-%m-%Y %H:%M:%S')
     return df
 
 # Plots candlestick charts and adds Support Resistence lines
 def plot_charts(symbols, df, gran,levels):
-    fig = go.Figure()
-    fig.add_trace(go.Candlestick(x=df.index,
-                                open=df['Open'],
-                                close=df['Close'],
-                                low=df['Low'],
-                                high=df['High'],
-                                increasing_line_color="green",
-                                decreasing_line_color="red",name='Price'))
-
-    i = 0 
+    fig = go.Figure(data= go.Candlestick(
+        x=df.index,
+        open=df['Open'],
+        high=df['High'],
+        low=df['Low'],
+        close=df['Close'],
+        increasing_line_color="green",
+        decreasing_line_color="red",
+        name='Price'
+        ))
+                                
     support_resistance_prices = ""
+    n = 0
     for level in levels:
-        x0 = df.index[level[0]-1]
+        x0 = np.array(df.index[level[0]-1])
         y0 = level[1]
-        x1 = df.index[len(df)-2]
+        x1 = np.array(df.index[len(df)-2])
         y1 = level[1]
 
-        fig.add_trace(go.Scatter(
-            name=f'Support and Resistance {i}',
-            mode='lines',
-            y=[ y0, y1] , x = [x0 , x1] 
-            ))
-        i+=1
+    
             
-        support_resistance_prices = "{:.2f}".format(level[0])
-        fig.add_annotation(text=support_resistance_prices,
-                       align='center',
-                       showarrow=True,
-                       xref='paper',
-                       yref='paper',
-                       x=0.1,
-                       y=0.9+i,
-                       bordercolor='pink',
-                       borderwidth=3)
+
+        fig.add_trace(go.Line(
+            x=[x0,x1],
+            y=[y0,y1],
+            line= dict(dash='dash', width=3),
+            # selector=dict(type='scatter', mode='lines'),
+            name=f'Sup + Resist Lines {n}'
+            ))
+        n+=1
+         
+    # support_resistance_prices = "{:.2f}".format(float(level[1]))
+    # fig.add_annotation(
+    #     text=support_resistance_prices,
+    #     align='left',
+    #     showarrow=False,
+    #     xref='paper',
+    #     yref='paper',
+    #     x=0.1,
+    #     y=1,
+    #     bordercolor='pink',
+    #     borderwidth=3)
 
     fig.update_layout(
         title = f'{symbols} "{gran}" Charts',
@@ -103,18 +112,9 @@ def plot_charts(symbols, df, gran,levels):
                 color = 'lightgray',
                 family = 'tahoma', 
         )),
-        # shapes= [dict(
-        #     type='line',
-        #     x0 = df.index[len(df)-1], x1 = df.index[level[0]-1],
-        #     y0 = level[1], y1= level[1], xref='x', yref='y',
-        #     line_width = 3)],
-            
-        # annotations = [dict(
-        #     text = f'{level[1]}'
-        # )]
     )
-
     fig.show()
+    # pprint(fig)
 
 # Determines if there is Support
 def is_support(df, i):
@@ -153,17 +153,19 @@ def has_breakout(levels, previous, last):
 
 # Method 1: Using Fractal candlestick pattern
 def detect_level_method_1(df):
+    df[sym] = pd.DataFrame(df[sym],df[sym].index)
     levels = []
-    for i in range(2, len(df) -2):
-        if is_support(df, i):
-            l = df['Low'][i]
-            if is_far_from_level(l, levels, df):
+    for i in range(2, df[sym].shape[0] -2):
+        if is_support(df[sym], i):
+            l = df[sym]['Low'][i]
+            if is_far_from_level(l, levels, df[sym]):
                 levels.append((i, l))
-        elif is_resistance(df,i):
-            l = df['High'][i]
-            if is_far_from_level(l, levels, df):
+        elif is_resistance(df[sym],i):
+            l = df[sym]['High'][i]
+            if is_far_from_level(l, levels, df[sym]):
                 levels.append((i,l))
     return levels
+
 
 # Method 2: Window shifting method
 def detect_level_method_2(df):
@@ -188,7 +190,6 @@ def detect_level_method_2(df):
         if current_min not in min_list:
             min_list = []
         min_list.append(current_min)
-        # print(f' min_list = {min_list} for symbol {sym}')
 
         if len(min_list) == 5 & is_far_from_level(current_min,levels, df[sym]):
             levels.append((low_range.idxmin(), current_min))
@@ -228,13 +229,12 @@ from_date = '2022-03-01'
 for sym in symbols:
     try:
         df = get_data(symbols=sym,gran=gran,from_date= from_date)
-        # df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
+        df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
-        levels_1 = detect_level_method_1(df[sym])
+        levels_1 = detect_level_method_1(df)
         if (has_breakout(levels_1[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
             screened_list_1.append(sym)
 
-        df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
         levels_2 = detect_level_method_2(df)
         if (has_breakout(levels_2[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
             screened_list_2.append(sym)
@@ -247,9 +247,9 @@ print(f'screened 2 = {screened_list_2}')
 
 # Method 1: Using Fractal candlestick pattern (After the screener has run)
 for stock_code in screened_list_1:
-    df = get_data(stock_code, gran=gran,from_date= from_date)
+    df = get_data(stock_code, gran=gran,from_date=from_date)
     levels = []
-    for i in range(2, len(df[stock_code]) - 2):
+    for i in range(2, len(df[stock_code])- 2):
         if is_support(df[stock_code],i):
             l = df[stock_code]['Low'][i]
             if is_far_from_level(l, levels, df[stock_code]):
@@ -258,7 +258,6 @@ for stock_code in screened_list_1:
             l = df[stock_code]['High'][i]
             if is_far_from_level(l, levels, df[stock_code]):
                 levels.append((i, l))
-
     plot_charts(symbols=stock_code, df=df[stock_code], gran=gran,levels=levels)
 
 # Method 2: Window shifting method (After the screener has run)
