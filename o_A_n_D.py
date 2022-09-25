@@ -37,7 +37,6 @@ def get_data(symbols, gran, from_date):
     record_path = ['candles'], errors='ignore'))
     df[symbols] = df[symbols].loc[:,['time','mid.o','mid.h','mid.l','mid.c','volume']]
     df[symbols].rename(columns={'time':'Date', 'mid.o':'Open','mid.h':'High','mid.l':'Low','mid.c':'Close','volume':'Volume'},inplace=True)
-    df[symbols]['Date'] = pd.to_datetime(df[symbols]['Date'],utc=True)
     df[symbols] = df[symbols].set_index(['Date'])
     # df[symbols].index = pd.DatetimeIndex(df[symbols].index).strftime('%d-%m-%Y %H:%M:%S')
     return df
@@ -75,9 +74,9 @@ def plot_charts(symbols, df, gran,levels):
         support_resistance_prices = "{:.5f}".format(float(level[1]))
         fig.add_annotation(
             text=support_resistance_prices,
-            align='right',
+            align='left',
             showarrow=False,
-            x=c1,
+            x=c0,
             y= t1)
 
     fig.update_layout(
@@ -142,23 +141,24 @@ def has_breakout(levels, previous, last):
 # Method 1: Using Fractal candlestick pattern
 def detect_level_method_1(df):
     df[sym] = pd.DataFrame(df[sym],df[sym].index)
-    higher_levels = []
+    levels = []
     for i in range(2, df[sym].shape[0] -2):
         if is_support(df[sym], i):
             l = df[sym]['Low'][i]
-            if is_far_from_level(l, higher_levels, df[sym]):
-                higher_levels.append((i, l))
+            if is_far_from_level(l, levels, df[sym]):
+                levels.append((i, l))
         elif is_resistance(df[sym],i):
             l = df[sym]['High'][i]
-            if is_far_from_level(l, higher_levels, df[sym]):
-                higher_levels.append((i,l))
-    return higher_levels
+            if is_far_from_level(l, levels, df[sym]):
+                levels.append((i,l))
+    return levels
 
 
 # Method 2: Window shifting method
 def detect_level_method_2(df):
     max_list = []
     min_list = []
+    levels = []
     df[sym] = pd.DataFrame(df[sym],df[sym].index)
     for i in range(5, df[sym].shape[0] -5):
         high_range = df[sym]['High'][i-5:i+4].astype(float)
@@ -168,8 +168,8 @@ def detect_level_method_2(df):
             max_list = []
         max_list.append(current_max)
 
-        if len(max_list) == 5 & is_far_from_level(current_max,higher_levels, df[sym]):
-            higher_levels.append((high_range.idxmax(), current_max))
+        if len(max_list) == 5 & is_far_from_level(current_max,levels, df[sym]):
+            levels.append((high_range.idxmax(), current_max))
 
         low_range = df[sym]['Low'][i-5:i+5].astype(float)
         current_min = low_range.min()
@@ -178,15 +178,13 @@ def detect_level_method_2(df):
             min_list = []
         min_list.append(current_min)
 
-        if len(min_list) == 5 & is_far_from_level(current_min,higher_levels, df[sym]):
-            higher_levels.append((low_range.idxmin(), current_min))
-    return higher_levels
+        if len(min_list) == 5 & is_far_from_level(current_min,levels, df[sym]):
+            levels.append((low_range.idxmin(), current_min))
+    return levels
 
 # lists to store the screened results
 screened_list_1 = [] 
 screened_list_2 = []
-higher_levels = []
-
 
 # # Drawing support and resistance lines on all the charts
 # symbols = symbol('GBP_USD')
@@ -226,7 +224,6 @@ for sym in symbols:
 
         levels_2 = detect_level_method_2(df)
         if (has_breakout(levels_2[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
-            print(has_breakout(levels_2[-5:],df[sym].iloc[-2], df[sym].iloc[-1]))
             screened_list_2.append(sym)
         
     except Exception as e:
@@ -249,15 +246,14 @@ for stock_code in screened_list_1:
             l = float(df[stock_code]['Low'][i])
             if is_far_from_level(l, lower_levels, df[stock_code]):
                 lower_levels.append((i,l))
-            df[stock_code].loc[df[stock_code].index[lower_levels[0]],'levels'] = [lower_levels[1]]
+            # df[stock_code].loc[df[stock_code].index[lower_levels[0]],'levels'] = [lower_levels[1]]
         elif is_resistance(df[stock_code], i):
             l = float(df[stock_code]['High'][i])
             if is_far_from_level(l, lower_levels, df[stock_code]):
                 lower_levels.append((i, l))
-            df[stock_code].loc[df[stock_code].index[lower_levels[0]],'levels'] = [lower_levels[1]]
-    print(df)
+            # df[stock_code].loc[df[stock_code].index[lower_levels[0]],'levels'] = [lower_levels[1]]
 
-    # plot_charts(symbols=stock_code, df=df[stock_code], gran=l_gran, levels=list(lower_levels))    
+    plot_charts(symbols=stock_code, df=df[stock_code], gran=l_gran, levels=list(lower_levels))    
 
 # Method 2: Window shifting method (After the screener has run)
 for symbols in screened_list_2:
@@ -274,7 +270,7 @@ for symbols in screened_list_2:
         max_list.append(current_max)
 
         if len(max_list) == 5 and is_far_from_level(current_max,pivots, df[symbols]):
-            df[symbols][pivots] = i, current_max
+            pivots.append((i, current_max))
 
         low_range = df[symbols]['Low'][i-5:i+4].astype(float)
         current_min = low_range.min()
@@ -283,6 +279,6 @@ for symbols in screened_list_2:
         min_list.append(current_min)
 
         if len(min_list) == 5 and is_far_from_level(current_min, pivots,df[symbols]):
-            df[symbols][pivots] = i, current_min
-            print(df[symbols][pivots])
-    # plot_charts(symbols=symbols, df=df[symbols],gran=l_gran,levels=list(pivots))
+            pivots.append((i, current_min))
+    
+    plot_charts(symbols=symbols, df=df[symbols],gran=l_gran,levels=list(pivots))
