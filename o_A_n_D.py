@@ -144,11 +144,11 @@ def detect_level_method_1(df):
     levels = []
     for i in range(2, df[sym].shape[0] -2):
         if is_support(df[sym], i):
-            l = df[sym]['Low'][i]
+            l = float(df[sym]['Low'][i])
             if is_far_from_level(l, levels, df[sym]):
                 levels.append((i, l))
         elif is_resistance(df[sym],i):
-            l = df[sym]['High'][i]
+            l = float(df[sym]['High'][i])
             if is_far_from_level(l, levels, df[sym]):
                 levels.append((i,l))
     return levels
@@ -253,7 +253,7 @@ for stock_code in screened_list_1:
                 lower_levels.append((i, l))
             # df[stock_code].loc[df[stock_code].index[lower_levels[0]],'levels'] = [lower_levels[1]]
 
-    plot_charts(symbols=stock_code, df=df[stock_code], gran=l_gran, levels=list(lower_levels))    
+    plot_charts(symbols=stock_code, df=df[stock_code], gran=l_gran, levels=list(lower_levels))
 
 # Method 2: Window shifting method (After the screener has run)
 for symbols in screened_list_2:
