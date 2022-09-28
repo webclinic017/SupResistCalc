@@ -160,7 +160,7 @@ def detect_level_method_2(df):
         max_list.append(current_max)
 
         if len(max_list) == 5 & is_far_from_level(current_max,levels, df):
-            levels.append((high_range.idxmax(), current_max))
+            levels.append((i, current_max))
 
         low_range = df['Low'][i-5:i+5].astype(float)
         current_min = low_range.min()
@@ -170,6 +170,6 @@ def detect_level_method_2(df):
         min_list.append(current_min)
 
         if len(min_list) == 5 & is_far_from_level(current_min,levels, df):
-            levels.append((low_range.idxmin(), current_min))
+            levels.append((i, current_min))
     return levels
 
