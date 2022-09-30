@@ -59,12 +59,17 @@ if __name__ == '__main__':
                 l = float(df[sym]['High'][i])
                 if supres.is_far_from_level(l, levels, df[sym]):
                     levels.append((i, l))
+            m1 = [] 
+            for row in levels:
+                for rows in meth_1[sym]['price']:
+                    if row[1] == rows:
+                        m1.append(row)
 
-        for j, k  in levels:
-            print(k)
-            if k == meth_1[sym]['price']:
-                print(k)
-                supres.plot_charts(symbols=sym, df=df[sym], gran=h_gran, levels=list(levels))
+        supres.plot_charts(symbols=sym, df=df[sym], gran=h_gran, levels=list(m1))
+
+            # list_1 = [i for i in meth_1[sym]['price'] if i not in levels[1]]
+            # print(list_1)
+            # supres.plot_charts(symbols=sym, df=df[sym], gran=h_gran, levels=list(list_1))
 
     # Method_2:
     for sym in screened_list_2: 
@@ -95,11 +100,14 @@ if __name__ == '__main__':
             if len(min_list) == 5 and supres.is_far_from_level(current_min, pivots,df[sym]):
                 pivots.append((i, current_min))
             
-        for row in pivots:
-            if row[1] == meth_2[sym]['price']:
-                print(row[1])
-                supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(pivots))
+            m2 = [] 
+            for row in pivots:
+                for rows in meth_2[sym]['price']:
+                    if row[1] == rows:
+                        m2.append(row)
+        
+        supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(m2))
 
-    # print(f'screened 1 = {screened_list_1}')
-    # print(f'screened 2 = {screened_list_2}')
-    # print(f'This function was completed today the {today}')
+    print(f'screened 1 = {screened_list_1}')
+    print(f'screened 2 = {screened_list_2}')
+    print(f'This function was completed today the {today}')
