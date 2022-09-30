@@ -65,7 +65,7 @@ if __name__ == '__main__':
                     if row[1] == rows:
                         m1.append(row)
 
-        supres.plot_charts(symbols=sym, df=df[sym], gran=h_gran, levels=list(m1))
+        supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(m1))
 
             # list_1 = [i for i in meth_1[sym]['price'] if i not in levels[1]]
             # print(list_1)
