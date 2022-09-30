@@ -1,9 +1,11 @@
 # Imports
+from datetime import datetime
 from xmlrpc.client import DateTime
 import  requests, config
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+import pytz
 
 # Function to define the symbols or pairs used
 def symbol(sym):
@@ -20,16 +22,15 @@ def symbol(sym):
 # Cleans dataframe into usable format
 def get_data(symbols, gran, from_date):
     count = 1000
-    dt_from = DateTime(from_date)
     df = {}
     df[symbols] = pd.DataFrame(
-        pd.json_normalize(requests.get(f'{config.oanda_candles}/{symbols}/candles?count={count}&from={dt_from}&granularity={gran}',
+        pd.json_normalize(requests.get(f'{config.oanda_candles}/{symbols}/candles?count={count}&from={from_date}&granularity={gran}',
     headers =config.oanda_headers).json(),max_level=1, 
     record_path = ['candles'], errors='ignore'))
     df[symbols] = df[symbols].loc[:,['time','mid.o','mid.h','mid.l','mid.c','volume']]
     df[symbols].rename(columns={'time':'Date', 'mid.o':'Open','mid.h':'High','mid.l':'Low','mid.c':'Close','volume':'Volume'},inplace=True)
+    df[symbols]['Date'] = pd.to_datetime(df[symbols]['Date'])
     df[symbols] = df[symbols].set_index(['Date'])
-    # df[symbols].index = pd.DatetimeIndex(df[symbols].index).strftime('%d-%m-%Y %H:%M:%S')
     return df
 
 # Plots candlestick charts and adds Support Resistence lines
@@ -116,6 +117,7 @@ def is_far_from_level(value,levels,df):
     return np.sum([abs(float(value) - float(level)) < ave for _, 
                    level in levels]) ==0
 
+
 # Looks for price range within a level to initiate trade logic
 def is_within_level(value,levels,df):
     ave = np.mean(df['High'].astype(float) - df['Low'].astype(float))
@@ -131,7 +133,7 @@ def has_breakout(levels, previous, last):
 
 # Method 1: Using Fractal candlestick pattern
 def detect_level_method_1(df):
-    df = pd.DataFrame(df,df.index)
+    # df = pd.DataFrame(df,df.index)
     levels = []
     for i in range(2, df.shape[0] -2):
         if is_support(df, i):
@@ -150,7 +152,7 @@ def detect_level_method_2(df):
     max_list = []
     min_list = []
     levels = []
-    df = pd.DataFrame(df,df.index)
+    # df = pd.DataFrame(df,df.index)
     for i in range(5, df.shape[0] -5):
         high_range = df['High'][i-5:i+4].astype(float)
         current_max = high_range.max()
