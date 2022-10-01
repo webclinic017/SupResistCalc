@@ -122,7 +122,7 @@ def is_far_from_level(value,levels,df):
 def is_within_level(value,levels,df):
     ave = np.mean(df['High'].astype(float) - df['Low'].astype(float))
     return np.sum([abs(float(value) - float(level)) > ave for _, 
-                   level in levels]) ==0
+                   level in levels]) ==1
 
 # Determines if a breakout has occured
 def has_breakout(levels, previous, last):

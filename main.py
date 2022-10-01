@@ -1,4 +1,5 @@
 from datetime import  datetime
+from stringprep import c22_specials
 from dateutil.relativedelta import relativedelta
 import config
 import supresistlines as supres
@@ -9,7 +10,7 @@ import pandas as pd
 import numpy as np
 import pytz
 from datetime import datetime
-from pprint import pprint
+# import candlepatterns as csp
 
 if __name__ == '__main__':
 
@@ -59,17 +60,14 @@ if __name__ == '__main__':
                 l = float(df[sym]['High'][i])
                 if supres.is_far_from_level(l, levels, df[sym]):
                     levels.append((i, l))
+            
             m1 = [] 
             for row in levels:
                 for rows in meth_1[sym]['price']:
                     if row[1] == rows:
-                        m1.append(row)
-
+                        m1.append(row)                        
+            
         supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(m1))
-
-            # list_1 = [i for i in meth_1[sym]['price'] if i not in levels[1]]
-            # print(list_1)
-            # supres.plot_charts(symbols=sym, df=df[sym], gran=h_gran, levels=list(list_1))
 
     # Method_2:
     for sym in screened_list_2: 
@@ -105,6 +103,7 @@ if __name__ == '__main__':
                 for rows in meth_2[sym]['price']:
                     if row[1] == rows:
                         m2.append(row)
+            
         
         supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(m2))
 
