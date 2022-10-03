@@ -23,10 +23,13 @@ def symbol(sym):
 def get_data(symbols, gran, from_date):
     count = 1000
     df = {}
+    tz = pytz.timezone('Europe/London')
     df[symbols] = pd.DataFrame(
         pd.json_normalize(requests.get(f'{config.oanda_candles}/{symbols}/candles?count={count}&from={from_date}&granularity={gran}',
     headers =config.oanda_headers).json(),max_level=1, 
     record_path = ['candles'], errors='ignore'))
+    # print(df.items())
+    # tz.localize(df[symbols]['time'])
     df[symbols] = df[symbols].loc[:,['time','mid.o','mid.h','mid.l','mid.c','volume']]
     df[symbols].rename(columns={'time':'Date', 'mid.o':'Open','mid.h':'High','mid.l':'Low','mid.c':'Close','volume':'Volume'},inplace=True)
     df[symbols]['Date'] = pd.to_datetime(df[symbols]['Date'])

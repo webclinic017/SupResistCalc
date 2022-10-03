@@ -23,8 +23,8 @@ if __name__ == '__main__':
     symbols = supres.symbol('all')
     h_gran = 'D'
     l_gran = 'H4'
-    today = pd.to_datetime(datetime.today(),utc=True)
-    from_date = (today - relativedelta(months = 6)).astimezone('UTC')
+    today = (pd.to_datetime(datetime.today(),utc=True).astimezone('Europe/London'))
+    from_date = (today - relativedelta(years = 1)).astimezone('Europe/London')
 
     for sym in symbols:
         try:
@@ -109,4 +109,7 @@ if __name__ == '__main__':
 
     print(f'screened 1 = {screened_list_1}')
     print(f'screened 2 = {screened_list_2}')
+
+    df[sym]['Buy'] = " "
+    df[sym]['Sell'] = " "
     print(f'This function was completed today the {today}')
