@@ -24,7 +24,7 @@ if __name__ == '__main__':
     h_gran = 'D'
     l_gran = 'H4'
     today = (pd.to_datetime(datetime.today(),utc=True).astimezone('Europe/London'))
-    from_date = (today - relativedelta(years = 1)).astimezone('Europe/London')
+    from_date = (today - relativedelta(months = 6)).astimezone('Europe/London')
 
     for sym in symbols:
         try:
@@ -103,7 +103,6 @@ if __name__ == '__main__':
                 for rows in meth_2[sym]['price']:
                     if row[1] == rows:
                         m2.append(row)
-            
         
         supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(m2))
 
@@ -112,4 +111,5 @@ if __name__ == '__main__':
 
     df[sym]['Buy'] = " "
     df[sym]['Sell'] = " "
+    print (df)
     print(f'This function was completed today the {today}')
