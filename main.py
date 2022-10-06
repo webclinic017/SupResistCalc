@@ -1,6 +1,7 @@
 from datetime import  datetime
 from stringprep import c22_specials
 from dateutil.relativedelta import relativedelta
+# from candlepatterns import PatternRecognition
 import config
 import supresistlines as supres
 import oandapyV20
@@ -10,6 +11,8 @@ import pandas as pd
 import numpy as np
 import pytz
 from datetime import datetime
+import Test_file as PatRecog
+
 # import candlepatterns as csp
 
 if __name__ == '__main__':
@@ -65,8 +68,22 @@ if __name__ == '__main__':
             for row in levels:
                 for rows in meth_1[sym]['price']:
                     if row[1] == rows:
-                        m1.append(row)                        
-            
+                        m1.append(row)    
+
+        patrecog = PatRecog.PatternRecognition(df[sym],sym, today, from_date)                    
+        # doj = patrecog.doji()
+        # print(f'doji = {doj}')
+        # bullengulfing = patrecog.bullengulf()
+        # print(f'bull = {bullengulfing}')
+        # bearengulfing = patrecog.bearengulf()
+        # print(f'bear = {bearengulfing}')
+        # hammer = patrecog.hammer()
+        # print(f'hammer = {hammer}')
+        # star = patrecog.shooting_star()
+        # print(f'star = {star}')
+        three_white_sold = patrecog.three_white_soldiers()
+        print(f'3 white sold = {three_white_sold}')
+
         supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(m1))
 
     # Method_2:
@@ -104,12 +121,24 @@ if __name__ == '__main__':
                     if row[1] == rows:
                         m2.append(row)
         
+        patrecog = PatRecog.PatternRecognition(df[sym],sym, today, from_date)
+        # doj = patrecog.doji()
+        # print(f'doji = {doj}')
+        # bullengulfing = patrecog.bullengulf()
+        # print(f'bull = {bullengulfing}')
+        # bearengulfing = patrecog.bearengulf()
+        # print(f'bear = {bearengulfing}')
+        # hammer = patrecog.hammer()
+        # print(f'hammer = {hammer}')
+        # star = patrecog.shooting_star()
+        # print(f'star = {star}')
+        three_white_sold = patrecog.three_white_soldiers()
+        print(f'3 white sold = {three_white_sold}')
+
+
         supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(m2))
 
     print(f'screened 1 = {screened_list_1}')
     print(f'screened 2 = {screened_list_2}')
-
-    df[sym]['Buy'] = " "
-    df[sym]['Sell'] = " "
-    print (df)
+    
     print(f'This function was completed today the {today}')
