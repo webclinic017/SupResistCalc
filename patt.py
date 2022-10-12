@@ -1,5 +1,9 @@
-from tracemalloc import start
-import Test_file as PatRecog
+"""
+A simple function call placing all the listed patterns in one place to make for an easier and neater code.
+
+"""
+
+import Patterns as PatRecog
 
 def adding_all_patterns(df,symbol,end_date,start_date):
     patrecog = PatRecog.PatternRecognition(df[symbol],symbol, end_date, start_date)                    
@@ -11,8 +15,6 @@ def adding_all_patterns(df,symbol,end_date,start_date):
     print(f'bear = {bearengulfing}')
     hammer = patrecog.hammer()
     print(f'hammer = {hammer}')
-    inv_ham = patrecog.inverted_hammer()
-    print(f'invert hammer = {inv_ham}')
     star = patrecog.shooting_star()
     print(f'star = {star}')
     three_white_sold = patrecog.three_white_soldiers()

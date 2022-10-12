@@ -1,19 +1,13 @@
 from datetime import  datetime
-from stringprep import c22_specials
 from dateutil.relativedelta import relativedelta
-# from candlepatterns import PatternRecognition
-import config
 import supresistlines as supres
 import oandapyV20
 import oandapyV20.endpoints.forexlabs as labs
 import oandapyV20.endpoints.instruments as instruments
 import pandas as pd
-import numpy as np
-import pytz
 from datetime import datetime
 import patt
 
-# import candlepatterns as csp
 
 if __name__ == '__main__':
 
@@ -63,17 +57,22 @@ if __name__ == '__main__':
                 l = float(df[sym]['High'][i])
                 if supres.is_far_from_level(l, levels, df[sym]):
                     levels.append((i, l))
-            
+
+            # selecting only the lines that appear on both the higher and lower level
             # m1 = [] 
             # for row in levels:
             #     for rows in meth_1[sym]['price']:
             #         if row[1] == rows:
-            #             m1.append(row)    
+            #             m1.append(row) 
+        
+        # calling the lower timeframe to draw and find patterns  
         df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
+        # Calling all the patterns from a single function call
         pat_recg = patt.adding_all_patterns(df,sym,today,from_date)
         
+        # plotting the chats for mathod 1
         supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(levels))
 
     # Method_2:
@@ -105,17 +104,21 @@ if __name__ == '__main__':
             if len(min_list) == 5 and supres.is_far_from_level(current_min, pivots,df[sym]):
                 pivots.append((i, current_min))
             
+            # selecting only the lines that appear on both the higher and lower level
             # m2 = [] 
             # for row in pivots:
             #     for rows in meth_2[sym]['price']:
             #         if row[1] == rows:
             #             m2.append(row)
 
+        # calling the lower timeframe to draw and find patterns  
         df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
+        # Calling all the patterns from a single function call
         pat_recg = patt.adding_all_patterns(df,sym,today,from_date)
 
+        # plotting the chats for mathod 2
         supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(pivots))
 
     print(f'screened 1 = {screened_list_1}')
