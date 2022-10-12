@@ -26,7 +26,7 @@ class PatternRecognition:
         for i in range(len(self)):
             
             # Hammer
-            if self[i, 3] < self[i - 5, 3] and self[i, 3] > self[i, 0] \
+            if self.df[i, 3] < self.df[i - 5, 3] and self.df[i, 3] > self[i, 0] \
                 and self[i, 1] == self[i, 3]:
                 self[i, buy] = 1
                 

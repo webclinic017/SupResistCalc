@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 import pytz
 from datetime import datetime
-import Test_file as PatRecog
+import patt
 
 # import candlepatterns as csp
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # Method_1 :
     for sym in screened_list_1:
         levels = []
-        df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
+        df = supres.get_data(symbols=sym,gran=h_gran,from_date= from_date)
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
         
         for i in range(2, len(df[sym])- 2):
@@ -64,27 +64,17 @@ if __name__ == '__main__':
                 if supres.is_far_from_level(l, levels, df[sym]):
                     levels.append((i, l))
             
-            m1 = [] 
-            for row in levels:
-                for rows in meth_1[sym]['price']:
-                    if row[1] == rows:
-                        m1.append(row)    
+            # m1 = [] 
+            # for row in levels:
+            #     for rows in meth_1[sym]['price']:
+            #         if row[1] == rows:
+            #             m1.append(row)    
+        df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
+        df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
-        patrecog = PatRecog.PatternRecognition(df[sym],sym, today, from_date)                    
-        # doj = patrecog.doji()
-        # print(f'doji = {doj}')
-        # bullengulfing = patrecog.bullengulf()
-        # print(f'bull = {bullengulfing}')
-        # bearengulfing = patrecog.bearengulf()
-        # print(f'bear = {bearengulfing}')
-        # hammer = patrecog.hammer()
-        # print(f'hammer = {hammer}')
-        # star = patrecog.shooting_star()
-        # print(f'star = {star}')
-        three_white_sold = patrecog.three_white_soldiers()
-        print(f'3 white sold = {three_white_sold}')
-
-        supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(m1))
+        pat_recg = patt.adding_all_patterns(df,sym,today,from_date)
+        
+        supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(levels))
 
     # Method_2:
     for sym in screened_list_2: 
@@ -92,7 +82,7 @@ if __name__ == '__main__':
         max_list = []
         min_list = []
 
-        df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
+        df = supres.get_data(symbols=sym,gran=h_gran,from_date= from_date)
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
     
         for i in range(5, len(df[sym])-5):
@@ -115,28 +105,18 @@ if __name__ == '__main__':
             if len(min_list) == 5 and supres.is_far_from_level(current_min, pivots,df[sym]):
                 pivots.append((i, current_min))
             
-            m2 = [] 
-            for row in pivots:
-                for rows in meth_2[sym]['price']:
-                    if row[1] == rows:
-                        m2.append(row)
-        
-        patrecog = PatRecog.PatternRecognition(df[sym],sym, today, from_date)
-        # doj = patrecog.doji()
-        # print(f'doji = {doj}')
-        # bullengulfing = patrecog.bullengulf()
-        # print(f'bull = {bullengulfing}')
-        # bearengulfing = patrecog.bearengulf()
-        # print(f'bear = {bearengulfing}')
-        # hammer = patrecog.hammer()
-        # print(f'hammer = {hammer}')
-        # star = patrecog.shooting_star()
-        # print(f'star = {star}')
-        three_white_sold = patrecog.three_white_soldiers()
-        print(f'3 white sold = {three_white_sold}')
+            # m2 = [] 
+            # for row in pivots:
+            #     for rows in meth_2[sym]['price']:
+            #         if row[1] == rows:
+            #             m2.append(row)
 
+        df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
+        df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
-        supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(m2))
+        pat_recg = patt.adding_all_patterns(df,sym,today,from_date)
+
+        supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(pivots))
 
     print(f'screened 1 = {screened_list_1}')
     print(f'screened 2 = {screened_list_2}')
