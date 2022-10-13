@@ -24,6 +24,18 @@ if __name__ == '__main__':
     from_date = (today - relativedelta(months = 6)).astimezone('Europe/London')
 
     for sym in symbols:
+        # setting pip size for pairs:
+        def pip_calc(symbol):
+            if sym[:3] =='JPY':
+                pips = 0.01
+            elif sym[-3:] == 'JPY':
+                pips = 0.01
+            else:
+                pips = 0.0001
+            return pips
+    
+        pips = pip_calc(sym)
+
         try:
             df = supres.get_data(symbols=sym,gran=h_gran,from_date=from_date)
             df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
@@ -70,7 +82,7 @@ if __name__ == '__main__':
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
         # Calling all the patterns from a single function call
-        pat_recg = patt.adding_all_patterns(df,sym,today,from_date)
+        pat_recg = patt.adding_all_patterns(df,sym,today,from_date, pips)
         
         # plotting the chats for mathod 1
         supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(levels))
@@ -116,7 +128,7 @@ if __name__ == '__main__':
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
         # Calling all the patterns from a single function call
-        pat_recg = patt.adding_all_patterns(df,sym,today,from_date)
+        pat_recg = patt.adding_all_patterns(df,sym,today,from_date, pips)
 
         # plotting the chats for mathod 2
         supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(pivots))
