@@ -42,12 +42,10 @@ if __name__ == '__main__':
             
             levels_1 = supres.detect_level_method_1(df[sym])
             if (supres.has_breakout(levels_1[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
-                meth_1[sym] = pd.DataFrame(levels_1, columns = ['idx position', 'price'])
                 screened_list_1.append(sym)
             
             levels_2 = supres.detect_level_method_2(df[sym])
             if (supres.has_breakout(levels_2[-5:],df[sym].iloc[-2], df[sym].iloc[-1])):
-                meth_2[sym] = pd.DataFrame(levels_2,columns = ['idx position', 'price'])
                 screened_list_2.append(sym)
 
         except Exception as e:
@@ -64,18 +62,11 @@ if __name__ == '__main__':
                 l = float(df[sym]['Low'][i])
                 if supres.is_far_from_level(l, levels, df[sym]):
                     levels.append((i,l))
-                # df[stock_code].loc[df[stock_code].index[lower_levels[0]],'levels'] = [lower_levels[1]]
+
             elif supres.is_resistance(df[sym], i):
                 l = float(df[sym]['High'][i])
                 if supres.is_far_from_level(l, levels, df[sym]):
                     levels.append((i, l))
-
-            # selecting only the lines that appear on both the higher and lower level
-            # m1 = [] 
-            # for row in levels:
-            #     for rows in meth_1[sym]['price']:
-            #         if row[1] == rows:
-            #             m1.append(row) 
         
         # calling the lower timeframe to draw and find patterns  
         df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
@@ -116,13 +107,6 @@ if __name__ == '__main__':
             if len(min_list) == 5 and supres.is_far_from_level(current_min, pivots,df[sym]):
                 pivots.append((i, current_min))
             
-            # selecting only the lines that appear on both the higher and lower level
-            # m2 = [] 
-            # for row in pivots:
-            #     for rows in meth_2[sym]['price']:
-            #         if row[1] == rows:
-            #             m2.append(row)
-
         # calling the lower timeframe to draw and find patterns  
         df = supres.get_data(symbols=sym,gran=l_gran,from_date= from_date)
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
