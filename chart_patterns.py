@@ -1,4 +1,6 @@
+from cmath import nan
 import pandas as pd
+import numpy as np
 
 class ChartPatternRecognition:
     def __init__(self,df,symbol, curr_date, start_date, pips):
@@ -19,20 +21,8 @@ class ChartPatternRecognition:
 
             #movingMin returns the minimum price over the last t=20 timeperiods
             highest_close_of_poll = self.df['Close'].rolling(30).max()
-            lowest_close_of_poll = self.df['Close'].rolling(30).min()
-
-            #We want poll to be much longer than the flag is wide.
-            flag_width = highest_close_of_flag - lowest_close_of_flag
-            poll_height = highest_close_of_poll - lowest_close_of_poll
-
-            # ((new-old)/old) yields percentage gain between.
-            bull_flag = (poll_height - flag_width ) / flag_width
-
-            #Filter out bull flags who's flagpole tops go too high over the flapping flag
-            bull_flag -= (highest_close_of_poll -highest_close_of_flag ) # highest_close_of_flag;
-
-            thresh = 0.9
-            bull_flag_trigger = (bull_flag > thresh)
+            lowest_close_of_poll = self.df['Close'].rolling(30).min()            
 
             print(f'bull flag found at {self.symbols} on {date[i]}')
-        return bull_flag_trigger
+
+        return #bull_flag_trigger

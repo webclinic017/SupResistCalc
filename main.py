@@ -73,8 +73,8 @@ if __name__ == '__main__':
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
         # Calling all the patterns from a single function call
-        pat_recg = patt.adding_all_candle_patterns(df,sym,today,from_date, pips)
-        # chart_recog = patt.adding_all_chart_patterns(df,sym,today,from_date, pips)
+        # pat_recg = patt.adding_all_candle_patterns(df,sym,today,from_date, pips)
+        chart_recog = patt.adding_all_chart_patterns(df,sym,today,from_date, pips)
         
         # plotting the chats for mathod 1
         supres.plot_charts(symbols=sym, df=df[sym], gran=l_gran, levels=list(levels))
@@ -113,8 +113,8 @@ if __name__ == '__main__':
         df[sym] = pd.DataFrame(df[sym], index = df[sym].index)
 
         # Calling all the patterns from a single function call
-        pat_recg = patt.adding_all_candle_patterns(df,sym,today,from_date, pips)
-        # chart_recog = patt.adding_all_chart_patterns(df,sym,today,from_date, pips)
+        # pat_recg = patt.adding_all_candle_patterns(df,sym,today,from_date, pips)
+        chart_recog = patt.adding_all_chart_patterns(df,sym,today,from_date, pips)
 
         # plotting the chats for mathod 2
         supres.plot_charts(symbols=sym, df=df[sym],gran=l_gran,levels=list(pivots))
