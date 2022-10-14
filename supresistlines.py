@@ -65,8 +65,10 @@ def plot_charts(symbols, df, gran,levels):
             name=f'Sup + Resist Lines {n}'
             ))
         n+=1
-         
-        support_resistance_prices = "{:.5f}".format(float(level[1]))
+        if(symbols[:3] == "JPY" or symbols[-3:] == "JPY"):
+            support_resistance_prices = "{:.3f}".format(float(level[1]))
+        else:
+            support_resistance_prices = "{:.5f}".format(float(level[1]))
         fig.add_annotation(
             text=support_resistance_prices,
             align='left',
