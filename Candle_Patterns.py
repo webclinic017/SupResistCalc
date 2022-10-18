@@ -53,7 +53,7 @@ class CandlePatternRecognition:
             low_bar_two = min(float(open[i - 2]), float(close[i - 2]))
             body = max_bar - low_bar
             body_prev = max_bar_prev - low_bar_prev
-            body_two = max_bar_two - low_bar_two
+            # body_two = max_bar_two - low_bar_two
 
            
             if (float(close[i]) > float(open[i]) and float(open[i - 1]) > float(close[i - 1]) and \
@@ -79,14 +79,7 @@ class CandlePatternRecognition:
 
         for i in range(len(self.df)-1):
             max_bar = max(float(open[i]), float(close[i])) 
-            max_bar_prev = max(float(open[i - 1]), float(close[i - 1]))
-            max_bar_two = max(float(open[i - 2]), float(close[i - 2]))  
             low_bar = min(float(open[i]), float(close[i]))
-            low_bar_prev = min(float(open[i - 1]), float(close[i - 1]))
-            low_bar_two = min(float(open[i - 2]), float(close[i - 2]))
-            body = max_bar - low_bar
-            body_prev = max_bar_prev - low_bar_prev
-            body_two = max_bar_two - low_bar_two
             upper_shadow = float(high[i]) - max_bar
             bottom_shadow = low_bar - float(low[i])
 
@@ -133,10 +126,10 @@ class CandlePatternRecognition:
             body = max_bar - low_bar
             body_prev = max_bar_prev - low_bar_prev
             body_two = max_bar_two - low_bar_two
-            upper_shadow = float(high[i]) - max_bar
+            # upper_shadow = float(high[i]) - max_bar
             upper_shadow_prev = float(high[i-1]) - max_bar_prev
             upper_shadow_two = float(high[i-2]) - max_bar_two
-            bottom_shadow = low_bar - float(low[i])
+            # bottom_shadow = low_bar - float(low[i])
             bottom_shadow_prev = low_bar_prev - float(low[i-1])
             bottom_shadow_two = low_bar_two - float(low[i-2])
             half_body_candle = (body / 2) + low_bar 
@@ -171,34 +164,18 @@ class CandlePatternRecognition:
         date = self.df.index
 
         for i in range(len(self.df)-1):
-            max_bar = max(float(open[i]), float(close[i])) 
-            max_bar_prev = max(float(open[i - 1]), float(close[i - 1]))
-            # max_bar_two = max(float(open[i - 2]), float(close[i - 2]))  
-            low_bar = min(float(open[i]), float(close[i]))
-            low_bar_prev = min(float(open[i - 1]), float(close[i - 1]))
-            # low_bar_two = min(float(open[i - 2]), float(close[i - 2]))
-            body = max_bar - low_bar
-            body_prev = max_bar_prev - low_bar_prev
-            # body_two = max_bar_two - low_bar_two
-            upper_shadow = float(high[i]) - max_bar
-            upper_shadow_prev = float(high[i-1]) - max_bar_prev
-            # upper_shadow_two = float(high[i-2]) - max_bar_two
-            bottom_shadow = low_bar - float(low[i])
-            bottom_shadow_prev = low_bar_prev - float(low[i-1])
-            # bottom_shadow_two = low_bar_two - float(low[i-2])
-            # half_body_candle = (body / 2) + low_bar 
-            # half_body_candle_prev = (body_prev /2) + low_bar_prev
-            # half_body_candle_two = (body_two /2) + low_bar_two
-
-            if (isclose(float(low[i]),float(low[i-1]), rel_tol=0.005) and float(close[i]) > float(open[i]) and float(open[i-1]) > float(close[i-1]) and \
-                float(open[i-2]) > float(close[i-2]) and float(open[i-3]) > float(close[i-3]) and isclose(body, body_prev, rel_tol=0.005) and \
-                    isclose(bottom_shadow, bottom_shadow_prev, rel_tol= 0.0005)):
+            
+            if (float(close[i-1]) == float(open[i]) and float(high[i-1]) == float(open[i-1])  and\
+                float(close[i]) == float(high[i]) and float(close[i]) > float(open[i]) and\
+                float(open[i-1]) > float(close[i-1]) and float(open[i-2]) > float(close[i-2]) and\
+                float(open[i-3]) > float(close[i-3])):
                 # self.df['Buy'][i] = 1
                 print(f'tweezer bottoms found at {self.symbols} on {date[i]}')
 
-            if (isclose(float(high[i]),float(high[i-1]), rel_tol=0.0005) and float(open[i]) > float(close[i]) and float(close[i-1]) > float(open[i-1]) and \
-                float(close[i-2]) > float(open[i-2]) and float(close[i-3]) > float(open[i-3]) and isclose(body, body_prev, rel_tol=0.005) and \
-                    isclose(upper_shadow, upper_shadow_prev, rel_tol= 0.005)):
+            if (float(open[i-1]) == float(close[i]) and float(low[i-1]) == float(open[i-1])  and\
+                float(close[i]) == float(low[i]) and float(open[i]) > float(close[i]) and \
+                float(close[i-1]) > float(open[i-1]) and float(close[i-2]) > float(open[i-2]) and\
+                float(close[i-3]) > float(open[i-3])):
                 # self.df['Sell'][i] = -1
                 print(f'tweezer tops found at {self.symbols} on {date[i]}')
 
